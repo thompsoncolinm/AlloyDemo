@@ -4,6 +4,9 @@ using EPiServer.Cms.UI.AspNetIdentity;
 using EPiServer.Scheduler;
 using EPiServer.ServiceLocation;
 using EPiServer.Web.Routing;
+using AlloyDemo.Features.RegisterPersonas;
+using System.Net;
+
 
 namespace AlloyDemo;
 
@@ -33,7 +36,8 @@ public class Startup
             .AddCms()
             .AddAlloy()
             .AddAdminUserRegistration()
-            .AddEmbeddedLocalization<Startup>();
+            .AddEmbeddedLocalization<Startup>()
+            .AddHttpContextAccessor();
 
         // Required by Wangkanai.Detection
         services.AddDetection();
@@ -46,7 +50,7 @@ public class Startup
         });
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
     {
         if (env.IsDevelopment())
         {
@@ -62,8 +66,22 @@ public class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
+            // Replace HttpContext.Current with your own check using httpContextAccessor
+            app.UseRegisterPersonas(() =>
+            {
+                var ipAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress;
+                return ipAddress != null && IPAddress.IsLoopback(ipAddress);
+            });
+
         app.UseEndpoints(endpoints =>
         {
+
+            endpoints.MapControllerRoute(
+                name: "register-personas",
+                pattern: "RegisterPersonas",
+                defaults: new { controller = "RegisterPersonas", action = "Index" }
+            );
+
             endpoints.MapContent();
         });
     }

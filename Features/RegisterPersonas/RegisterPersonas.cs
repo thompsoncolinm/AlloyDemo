@@ -53,7 +53,9 @@ namespace AlloyDemo.Features.RegisterPersonas
             var provider = ServiceLocator.Current.GetInstance<UIUserProvider>();
             foreach (var user in RegisterPersonasController.Users)
             {
-                IUIUser u = provider.GetUser(user.UserName);
+                var task = provider.GetUserAsync(user.UserName);
+                task.Wait();
+                var u = task.Result;
                 if (u == null) return false;
             }
             return true;

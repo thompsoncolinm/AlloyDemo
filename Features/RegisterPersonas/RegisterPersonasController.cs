@@ -140,7 +140,7 @@ namespace AlloyDemo.Features.RegisterPersonas
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         [IgnoreAntiforgeryToken]
-        public IActionResult Index(string submit)
+        public async Task<IActionResult> Index(string submit)
         {
             int countOfRolesCreated = 0;
             int countOfUsersCreated = 0;
@@ -152,27 +152,31 @@ namespace AlloyDemo.Features.RegisterPersonas
 
             foreach (string role in rolesToCreate)
             {
-                if (!roles.RoleExists(role))
+                if (!await roles.RoleExistsAsync(role))
                 {
-                    roles.CreateRole(role);
+                    await roles.CreateRoleAsync(role);
                     countOfRolesCreated++;
                 }
             }
 
             foreach (var item in Users)
             {
-                if (users.GetUser(item.UserName) == null)
+                var existingUser = await users.GetUserAsync(item.UserName);
+                if (existingUser == null)
                 {
-                    var newUser = users.CreateUser(item.UserName, password,
-                        email: $"{item.UserName.ToLower()}{email}",
-                        passwordQuestion: null, passwordAnswer: null,
-                        isApproved: true,
-                        status: out status, errors: out errors);
+                    var result = await users.CreateUserAsync(
+                        item.UserName, 
+                        password,
+                        $"{item.UserName.ToLower()}{email}",
+                        null, // passwordQuestion
+                        null, // passwordAnswer
+                        true  // isApproved
+                    );
 
-                    if (status == UIUserCreateStatus.Success)
+                    if (result.Status == UIUserCreateStatus.Success)
                     {
                         countOfUsersCreated++;
-                        roles.AddUserToRoles(item.UserName, item.Roles);
+                        await roles.AddUserToRolesAsync(item.UserName, item.Roles);
                     }
                 }
             }
