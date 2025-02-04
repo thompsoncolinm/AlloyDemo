@@ -1,0 +1,68 @@
+@using AlloyDemo.Features.RegisterPersonas
+@{
+    Layout = "";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Personas</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Register Personas</h2>
+
+                <form method="post" asp-controller="RegisterPersonas" asp-action="Index">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <p>
+                            Are you sure that you want to create the following users, make them members of these groups, and assign access rights to them?
+                        </p>
+                        <table class="table table-bordered table-striped">
+                            <tr>
+                                <th>User</th>
+                                <th>Groups</th>
+                            </tr>
+                            @foreach (RegisterPersonasController.UserAndRoles user in RegisterPersonasController.Users)
+                            {
+                                <tr>
+                                    <td>@user.UserName</td>
+                                    <td>
+                                        @foreach(string role in user.Roles)
+                                        {
+                                            <span class="badge bg-success">@role</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                    @if (ViewData["message"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @ViewData["message"]
+                        </div>
+                        <div>
+                            <a href="/">Take me to the Start page.</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <input name="submit" type="submit" class="btn btn-primary" value="Yes, do it!" />
+                        </div>
+                    }
+                    <div class="mt-3">
+                        <a href="/EPiServer/CMS">Log me in to Episerver CMS.</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
