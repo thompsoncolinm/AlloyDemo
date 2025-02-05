@@ -48,6 +48,13 @@ public class Startup
             options.Cookie.HttpOnly = true;
             options.Cookie.IsEssential = true;
         });
+
+        services.AddMaxMindGeolocationProvider(options =>
+        {
+            options.DatabasePath = @"C:\Users\Colin.Thompson\code\Optimizely\cmsdeffun12\AlloyDemo\App_Data\GeoLite2\GeoLite2-City.mmdb";
+            options.LocationsDatabasePath = 
+            @"C:\Users\Colin.Thompson\code\Optimizely\cmsdeffun12\AlloyDemo\App_Data\GeoLite2\GeoLite2-City-Locations-en.csv";
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
